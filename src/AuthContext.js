@@ -13,8 +13,8 @@ Amplify.configure({
         oauth: {
           domain: 'bottletalk-google.auth.ap-northeast-2.amazoncognito.com',
           scopes: ['email', 'profile', 'openid', 'aws.cognito.signin.user.admin'],
-          redirectSignIn: ['https://43.203.120.58.nip.io'],
-          redirectSignOut: ['https://43.203.120.58.nip.io'],
+          redirectSignIn: ['http://localhost:3000'],
+          redirectSignOut: ['http://localhost:3000'],
           responseType: 'code'
         }
       }
@@ -28,7 +28,7 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+
 
   const checkUser = async () => {
     try {
@@ -50,7 +50,7 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
       window.localStorage.removeItem('user');
     } finally {
-      setIsLoading(false);
+      
     }
   };
 
@@ -65,11 +65,11 @@ export const AuthProvider = ({ children }) => {
           break;
         case 'signInWithRedirect_failure':
           console.log('Sign in failure', payload.data);
-          setIsLoading(false);
+          
           break;
         case 'signOut':
           setUser(null);
-          setIsLoading(false);
+        
           break;
         default:
           break;
@@ -80,17 +80,17 @@ export const AuthProvider = ({ children }) => {
 
   const login = async () => {
     try {
-      setIsLoading(true);
+    
       await signInWithRedirect();
     } catch (err) {
       console.log('로그인 에러:', err);
-      setIsLoading(false);
+    
     }
   };
 
   const logout = async () => {
     try {
-      setIsLoading(true);
+   
       await signOut();
       setUser(null);
       window.localStorage.removeItem('user');
@@ -98,7 +98,7 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       console.log('로그아웃 에러:', err);
     } finally {
-      setIsLoading(false);
+      
     }
   };
 
@@ -108,10 +108,10 @@ export const AuthProvider = ({ children }) => {
     user,
     login,
     logout,
-    isLoading,
+  
     isAuthenticated,
     checkUser
-  }), [user, isLoading, isAuthenticated]);
+  }), [user, isAuthenticated]);
 
   return (
     <AuthContext.Provider value={value}>

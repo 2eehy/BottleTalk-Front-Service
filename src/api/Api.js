@@ -2,8 +2,6 @@ import axios from 'axios';
 
 const DOMAIN = process.env.REACT_APP_PRODUCT_BASE_URL;
 
-// console.log(DOMAIN);
-
 export const request = async (method, url, data) => {
     try {
         const headers = {
@@ -11,7 +9,6 @@ export const request = async (method, url, data) => {
             'Accept': 'application/json'
         };
 
-        // GET 요청이고 data가 있다면 커스텀 헤더에 추가
         if (method.toUpperCase() === 'GET' && data) {
             headers['X-User-ID'] = data;
         }

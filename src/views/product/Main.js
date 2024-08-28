@@ -17,6 +17,8 @@ function Main() {
     fetchTopProducts();
   }, []);
 
+ 
+
   const fetchProducts = async () => {
     try {
       const data = await request("GET", "/v1/api/products");
@@ -29,7 +31,6 @@ function Main() {
   const onChangeHandler = (e) => {
     const { value } = e.target;
     setSearch(value);
-    searchProducts(value);
   };
 
   const searchProducts = async (search) => {
@@ -61,6 +62,9 @@ function Main() {
       console.error("인기 상품 정보를 가져오는 데 실패했습니다:", error);
     }
   };
+
+  const topKeywordsTitle = user ? "맞춤 인기검색어 TOP5" : "추천 인기검색어 TOP5";
+  const topProductsTitle = user ? "맞춤 인기상품 TOP 5" : "추천 인기상품 TOP 5";
 
   return (
     <>
@@ -139,7 +143,7 @@ function Main() {
         >
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
             <div style={{ flex: 1 }}>
-              <h3 style={{ color: "#333", borderBottom: "2px solid #B0C4DE", paddingBottom: "10px", marginBottom: "15px" }}>맞춤 인기검색어 TOP5</h3>
+              <h3 style={{ color: "#333", borderBottom: "2px solid #B0C4DE", paddingBottom: "10px", marginBottom: "15px" }}>{topKeywordsTitle}</h3>
               <ul style={{ listStyleType: "none", padding: 0, margin: 0 }}>
                 {topKeywords.map((keyword, index) => (
                   <li
@@ -161,7 +165,7 @@ function Main() {
               </ul>
 
               <div style={{ flex: 1 }}>
-                <h3 style={{ color: "#333", borderBottom: "2px solid #B0C4DE", paddingBottom: "10px", marginBottom: "15px" }}>맞춤 인기상품 TOP 5</h3>
+                <h3 style={{ color: "#333", borderBottom: "2px solid #B0C4DE", paddingBottom: "10px", marginBottom: "15px" }}>{topProductsTitle}</h3>
                 <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
                   {topProducts.map((product, index) => (
                     <Link

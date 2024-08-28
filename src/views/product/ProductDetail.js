@@ -27,40 +27,6 @@ function ProductDetail() {
 
   return (
     <>
-      <div
-        style={{
-          backgroundColor: "#B0C4DE",
-          height: "70px",
-          width: "100%",
-          padding: "10px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          borderRadius: "10px",
-          boxSizing: "border-box",
-          position: "relative",
-          marginTop: "-70px"
-        }}
-      >
-        <div style={{ fontSize: "20px", fontWeight: "bold", color: "#fff" }}>
-          <Link
-            to="/"
-            style={{ color: "#fff", textDecoration: "none" }}
-          >
-             HOME
-          </Link>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            position: "relative",
-          }}
-        >
-          
-         
-        </div>
-      </div>
     <div className="product-detail">
       <h1 className="product-name">{product?.kor_name}</h1>
       <img src={product?.img} alt={product?.kor_name} className="product-image" />

@@ -10,35 +10,27 @@ import Footer from "./components/Footer";
 import { AuthProvider, useAuth } from "./AuthContext";
 
 const PrivateRoute = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
-  
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  const { isAuthenticated} = useAuth();
+ 
   
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
 const PublicRoute = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated } = useAuth();
   
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+ 
   
   return isAuthenticated ? <Navigate to="/" replace /> : children;
 };
 
 function AppContent() {
-  const { isAuthenticated, logout, isLoading, checkUser } = useAuth();
+  const { isAuthenticated, logout, checkUser, User } = useAuth();
 
   useEffect(() => {
     checkUser();
   }, []);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <Router>
@@ -76,10 +68,10 @@ function AppContent() {
               </PrivateRoute>
             } />
             <Route path="/product/:product_id" element={<ProductDetail />} />
-            <Route path="/feed" element={<Feed />} />
+            <Route path="/feed" element={<Feed isLogin={isAuthenticated} authUser={User} />} />
             <Route path="/create" element={
               <PrivateRoute>
-                <CreateFeed />
+                <CreateFeed authUser={User} />
               </PrivateRoute>
             } />
           </Routes>
@@ -91,6 +83,7 @@ function AppContent() {
 }
 
 function App() {
+  
   return (
     <AuthProvider>
       <AppContent />

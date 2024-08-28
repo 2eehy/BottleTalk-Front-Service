@@ -1,12 +1,19 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { request } from "../../api/FeedAPIs";
+import { useAuth } from "../../AuthContext";
+
 
 function CreateFeed({authUser}) {
   const navigate = useNavigate();
   const [preview, setPreview] = useState(null);
   const [content, setContent] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
+  const { user } = useAuth();
+  console.log(user);
+
+  
+
 
   const handleCancel = () => {
     navigate(-1);
@@ -18,9 +25,9 @@ function CreateFeed({authUser}) {
       return;
     }
 
-    console.log(authUser.userId);
+  
     const feedDTO = {
-      userId: authUser.userId,
+      userId: user.userId,
       content: content,
     }
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { request } from "../../api/FeedAPIs";
 import FeedModal from "../../components/FeedModal";
+import { useAuth } from "../../AuthContext";
 
 function Feed({ isLogin, authUser }) {
   const img_url = process.env.REACT_APP_IMG_BASE_URL;
@@ -9,6 +10,10 @@ function Feed({ isLogin, authUser }) {
   const [feeds, setFeeds] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [feedToDelete, setFeedToDelete] = useState(null);
+  const { user } = useAuth();
+
+
+  console.log(feeds);
 
   const navigate = useNavigate();
 
@@ -19,22 +24,27 @@ function Feed({ isLogin, authUser }) {
         if (selectedFeed === "all") {
           response = await request("GET", "v1/feed");
         } else if (selectedFeed === "my") {
-          response = await request("GET", `v1/feed?userId=${authUser?.userId}`);
+          response = await request("GET", `v1/feed?userId=${user?.userId}`);
         } else if (selectedFeed === "like") {
           response = await request(
             "GET",
-            `v1/feed/like?userId=${authUser?.userId}`
+            `v1/feed/like?userId=${user?.userId}`
           );
         }
         const data = await response.json();
-        setFeeds(data.apiData);
+        // 'like' 피드의 경우 모든 항목이 좋아요 된 상태이므로 liked를 true로 설정
+        const updatedFeeds = selectedFeed === "like" 
+          ? data.apiData.map(feed => ({ ...feed, liked: true }))
+          : data.apiData;
+        setFeeds(updatedFeeds);
       } catch (error) {
         console.error("Failed to fetch posts", error);
       }
     };
 
+
     fetchPosts();
-  }, [selectedFeed, authUser?.userId]);
+  }, [selectedFeed, user?.userId]);
 
   const handleSelectChange = (event) => {
     setSelectedFeed(event.target.value);
@@ -46,26 +56,34 @@ function Feed({ isLogin, authUser }) {
 
   const toggleLike = async (feedId, isLiked) => {
     try {
-      let feedLike = {
+      const feedLike = {
         feedId: feedId,
-        userId: authUser?.userId,
-        isLiked: isLiked,
+        userId: user?.userId,
+        isLiked: !isLiked,
       };
       const response = await request("PUT", `v1/feed/like`, feedLike);
       const changeLike = await response.json();
-      console.log(changeLike);
+      
+      if (response.ok) {
+        setFeeds((prevFeeds) =>
+          prevFeeds.map((feed) =>
+            feed.id === feedId
+              ? {
+                  ...feed,
+                  liked: !isLiked,
+                  likes: isLiked ? feed.likes - 1 : feed.likes + 1,
+                }
+              : feed
+          )
+        );
 
-      setFeeds((prevFeeds) =>
-        prevFeeds.map((feed) =>
-          feed.id === feedId
-            ? {
-                ...feed,
-                liked: !feed.liked,
-                likes: feed.liked ? feed.likes - 1 : feed.likes + 1,
-              }
-            : feed
-        )
-      );
+        // 좋아요 목록에서 좋아요를 취소한 경우 해당 항목 제거
+        if (selectedFeed === "like" && isLiked) {
+          setFeeds((prevFeeds) => prevFeeds.filter((feed) => feed.id !== feedId));
+        }
+      } else {
+        console.error("Failed to toggle like");
+      }
     } catch (error) {
       console.error("Failed to toggle like", error);
     }
@@ -87,7 +105,7 @@ function Feed({ isLogin, authUser }) {
         const feedDTO = {
           id: feedToDelete,
           reImgName: feeds?.find((feed) => feed?.id === feedToDelete)?.reImgName,
-          userId: authUser?.userId,
+          userId: user?.userId,
         };
 
         console.log(feedDTO)
@@ -235,7 +253,7 @@ function Feed({ isLogin, authUser }) {
                   {feed?.createdAt}
                 </p>
               </div>
-              {feed?.userId === authUser?.userId && (
+              {feed?.userId === user?.userId && (
                 <div style={{ display: "flex", gap: "5px" }}>
                   <button
                     onClick={() => handleEditClick(feed.id)}
@@ -293,10 +311,8 @@ function Feed({ isLogin, authUser }) {
                   alignItems: "center",
                 }}
               >
-                <span style={{ fontWeight: "bold", color: "#000" }}>
-                  {feed.likeCount} likes
-                </span>
-                <button
+               
+               <button
                   onClick={() => toggleLike(feed.id, feed.liked)}
                   style={{
                     backgroundColor: "transparent",
@@ -305,8 +321,8 @@ function Feed({ isLogin, authUser }) {
                     fontSize: "30px",
                   }}
                 >
-                  {isLogin && feed.liked ? "🩵" : "🤍"}
-                </button>
+                  {isLogin && feed?.liked === true? "🩵" : "🤍"}
+              </button>
               </div>
             </div>
           </div>
